@@ -1,0 +1,61 @@
+.edit-profile {
+  width: 50%;
+  margin: 0 auto;
+}
+
+.edit-profile h2 {
+  color: #0073aa;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.profile-details,
+.password-update {
+  margin-bottom: 30px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.profile-details label,
+.password-update label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.profile-details input,
+.password-update input,
+.profile-details select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-blue {
+  background-color: #0073aa;
+  color: #fff;
+}
+
+.btn-blue:hover {
+  background-color: #005a87;
+}
+
+.btn-gray {
+  background-color: #ccc;
+  color: #333;
+}
+
+.btn-gray:hover {
+  background-color: #aaa;
+}

@@ -1,0 +1,56 @@
+/* Stijl voor de top bar */
+.top-bar {
+  background-color: #f8f9fa;
+  padding: 10px;
+  text-align: right;
+  font-size: 14px;
+  color: #333;
+}
+
+.top-bar a {
+  color: #007bff;
+  margin-left: 15px;
+  text-decoration: none;
+}
+
+.top-bar a:hover {
+  color: #0056b3;
+}
+
+/* Stijl voor de header */
+.header {
+  background-color: #4caf50; /* Groene kleur voor een frisse uitstraling */
+  padding: 20px 0;
+  color: white;
+  text-align: center;
+  font-size: 28px;
+}
+
+.header .navbar-brand {
+  font-size: 28px;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+/* Stijl voor de navigatiebalk */
+.navbar {
+  background-color: #f9a825; /* Gele kleur die past bij het klusjes platform */
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.navbar a {
+  color: #333;
+  padding: 0 15px;
+  text-decoration: none;
+}
+
+.navbar a:hover {
+  color: white;
+  background-color: #ff9800;
+  padding: 10px;
+  border-radius: 5px;
+}

@@ -1,0 +1,37 @@
+.subscriptions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+.subscription {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  width: 300px;
+  text-align: center;
+}
+
+.subscription.popular {
+  border: 2px solid #ff0073;
+}
+
+.subscription h3 {
+  margin: 0;
+}
+
+.subscription button {
+  background-color: #ff6600;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.subscription ul {
+  list-style: none;
+  padding: 0;
+}

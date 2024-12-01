@@ -1,0 +1,143 @@
+/* Basisstijl voor je hele website */
+body {
+  background-color: #f5f5f5; /* Lichte grijze achtergrond */
+  color: #333; /* Donkere tekstkleur */
+  font-family: "Arial", sans-serif;
+}
+
+/* Zorg ervoor dat de container niet de volledige breedte inneemt */
+.container {
+  max-width: 900px; /* Beperk de breedte van de container */
+  margin: 0 auto; /* Centreer de container */
+  padding: 20px;
+}
+
+/* Zorg ervoor dat de kolommen niet te breed zijn */
+.col-md-6 {
+  flex: 0 0 45%;
+  max-width: 45%;
+  margin-bottom: 20px; /* Voeg ruimte toe onder de kolommen */
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Op kleine schermen worden de kolommen gestapeld */
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .col-md-6 {
+    max-width: 100%;
+    flex: 0 0 100%; /* Zorg ervoor dat de kolommen de volledige breedte innemen op mobiel */
+  }
+}
+
+/* Stijl de aanmeldknop */
+button.btn-primary {
+  background-color: #4caf50; /* Primaire groene kleur */
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%; /* Knoppen volledig breed */
+}
+
+button.btn-primary:hover {
+  background-color: #388e3c; /* Donkerder groen bij hover */
+}
+
+button.btn-google,
+button.btn-facebook,
+button.btn-apple,
+button.btn-hotmail {
+  border-radius: 5px;
+  color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 14px; /* Maak de knoptekst kleiner */
+  width: 100%; /* Knoppen volledig breed */
+}
+
+.btn-google {
+  background-color: #db4437;
+}
+.btn-google:hover {
+  background-color: #c23321;
+}
+
+.btn-facebook {
+  background-color: #3b5998;
+}
+.btn-facebook:hover {
+  background-color: #2d4373;
+}
+
+.btn-apple {
+  background-color: #000000;
+}
+.btn-apple:hover {
+  background-color: #333333;
+}
+
+.btn-hotmail {
+  background-color: #0072c6;
+}
+.btn-hotmail:hover {
+  background-color: #005a9e;
+}
+
+/* Stijl voor de inputvelden */
+.auth-input,
+.auth-select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+/* Voeg visuele diepte toe aan de formulieren */
+.auth-form {
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtiele schaduw */
+}
+
+/* Account aanmaken knop */
+button.btn-account-aanmaken {
+  background-color: #4caf50; /* Primaire groene kleur */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%; /* Zorg ervoor dat de knop volledig breed is */
+}
+
+button.btn-account-aanmaken:hover {
+  background-color: #388e3c;
+}
+
+h2,
+h3 {
+  font-size: 24px;
+  margin-bottom: 15px; /* Minder ruimte onder de koppen */
+}
+
+.form-group {
+  margin-bottom: 15px; /* Minder ruimte tussen de form-groepen */
+}

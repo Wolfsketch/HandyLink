@@ -1,0 +1,28 @@
+/* admin-content aanpassen */
+.admin-content {
+  padding: 20px;
+}
+
+/* Tabel styling */
+.profile-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px; /* Ruimte boven de tabel */
+}
+
+.profile-table th,
+.profile-table td {
+  padding: 10px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.profile-table th {
+  background-color: #0073aa;
+  color: white;
+}
+
+/* Knoppen styling */
+.profile-table .btn {
+  margin-right: 5px;
+}

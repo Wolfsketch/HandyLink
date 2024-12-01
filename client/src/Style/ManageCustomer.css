@@ -1,0 +1,109 @@
+.manage-container {
+  padding: 20px;
+  background: #f4f7f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.table-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.table-controls .btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-new {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-filter {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-report {
+  background-color: #ffc107;
+  color: black;
+}
+
+.btn-export {
+  background-color: #007bff;
+  color: white;
+}
+
+.date-picker {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 6px;
+}
+
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.styled-table th {
+  background: #343a40;
+  color: white;
+  text-align: left;
+  padding: 12px;
+}
+
+.styled-table td {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.styled-table tr:hover {
+  background: #f1f1f1;
+}
+
+.actions-column {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+}
+
+.action-btn.view {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.action-btn.edit {
+  background-color: #ffc107;
+  color: black;
+}
+
+.action-btn.delete {
+  background-color: #dc3545;
+  color: white;
+}
+
+.action-btn:hover {
+  opacity: 0.9;
+}
