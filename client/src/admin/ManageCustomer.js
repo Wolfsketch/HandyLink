@@ -97,6 +97,10 @@ function ManageCustomer() {
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reportMessage, setReportMessage] = useState("");
 
+  // Nieuw toegevoegde states voor het bewerken
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [customerToEdit, setCustomerToEdit] = useState(null);
+
   ////////////////////////////////////////////
   ////////////////////////////////////////////
   ////////////// DATA FETCHING ///////////////
@@ -419,6 +423,97 @@ function ManageCustomer() {
     setNotification({ ...notification, open: false });
   };
 
+  // Nieuw toegevoegde functies voor bewerken
+
+  const handleEditCustomer = (customer) => {
+    setCustomerToEdit(customer);
+    setEditModalOpen(true);
+  };
+
+  const handleSaveEditedCustomer = async () => {
+    if (
+      !customerToEdit.name ||
+      !customerToEdit.email ||
+      !customerToEdit.phone
+    ) {
+      setNotification({
+        open: true,
+        message: "Vul alle verplichte velden in.",
+        severity: "error",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/customers/${customerToEdit._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(customerToEdit),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Fout bij het bijwerken van de klant.");
+      }
+
+      const updatedCustomer = await response.json();
+
+      setCustomers((prevCustomers) =>
+        prevCustomers.map((customer) =>
+          customer._id === updatedCustomer._id ? updatedCustomer : customer
+        )
+      );
+
+      setEditModalOpen(false);
+      setNotification({
+        open: true,
+        message: "Klant succesvol bijgewerkt.",
+        severity: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      setNotification({
+        open: true,
+        message: error.message,
+        severity: "error",
+      });
+    }
+  };
+
+  const handleDeleteCustomer = async (customerId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/customers/${customerId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Fout bij het verwijderen van de klant.");
+      }
+
+      setCustomers((prevCustomers) =>
+        prevCustomers.filter((customer) => customer._id !== customerId)
+      );
+
+      setNotification({
+        open: true,
+        message: "Klant succesvol verwijderd.",
+        severity: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      setNotification({
+        open: true,
+        message: error.message,
+        severity: "error",
+      });
+    }
+  };
+
   ////////////////////////////////////////////
   ////////////////////////////////////////////
   ///////////////// RENDER ///////////////////
@@ -570,10 +665,16 @@ function ManageCustomer() {
                       >
                         <Visibility />
                       </IconButton>
-                      <IconButton color="secondary">
+                      <IconButton
+                        color="secondary"
+                        onClick={() => handleEditCustomer(customer)}
+                      >
                         <Edit />
                       </IconButton>
-                      <IconButton color="error">
+                      <IconButton
+                        color="error"
+                        onClick={() => handleDeleteCustomer(customer._id)}
+                      >
                         <Delete />
                       </IconButton>
                     </TableCell>
@@ -876,13 +977,267 @@ function ManageCustomer() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Modaal voor het bewerken van klantgegevens */}
+      <Dialog
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Klantgegevens Bewerken</DialogTitle>
+        <DialogContent>
+          {customerToEdit && (
+            <>
+              <TextField
+                label="Naam"
+                fullWidth
+                margin="normal"
+                value={customerToEdit.name}
+                onChange={(e) =>
+                  setCustomerToEdit({ ...customerToEdit, name: e.target.value })
+                }
+                required
+              />
+              <TextField
+                label="Email"
+                type="email"
+                fullWidth
+                margin="normal"
+                value={customerToEdit.email}
+                onChange={(e) =>
+                  setCustomerToEdit({
+                    ...customerToEdit,
+                    email: e.target.value,
+                  })
+                }
+                required
+              />
+              <TextField
+                label="Telefoon"
+                fullWidth
+                margin="normal"
+                value={customerToEdit.phone}
+                onChange={(e) =>
+                  setCustomerToEdit({
+                    ...customerToEdit,
+                    phone: e.target.value,
+                  })
+                }
+                required
+              />
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Abonnement</InputLabel>
+                <Select
+                  value={
+                    customerToEdit.subscription?._id ||
+                    customerToEdit.subscription ||
+                    ""
+                  }
+                  onChange={(e) =>
+                    setCustomerToEdit({
+                      ...customerToEdit,
+                      subscription: e.target.value,
+                    })
+                  }
+                >
+                  <MenuItem value="">
+                    <em>Geen</em>
+                  </MenuItem>
+                  {subscriptions.map((sub) => (
+                    <MenuItem key={sub._id} value={sub._id}>
+                      {sub.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <LocalizationProvider
+                dateAdapter={AdapterDateFns}
+                adapterLocale={nlLocale}
+              >
+                <DatePicker
+                  label="Geboortedatum"
+                  value={
+                    customerToEdit.birthDate
+                      ? new Date(customerToEdit.birthDate)
+                      : null
+                  }
+                  onChange={(date) =>
+                    setCustomerToEdit({ ...customerToEdit, birthDate: date })
+                  }
+                  renderInput={(params) => (
+                    <TextField {...params} fullWidth margin="normal" />
+                  )}
+                />
+              </LocalizationProvider>
+
+              {/* Adres velden */}
+              <TextField
+                label="Land"
+                fullWidth
+                margin="normal"
+                value={customerToEdit.address?.country || ""}
+                onChange={(e) =>
+                  setCustomerToEdit({
+                    ...customerToEdit,
+                    address: {
+                      ...customerToEdit.address,
+                      country: e.target.value,
+                    },
+                  })
+                }
+                required
+              />
+              <TextField
+                label="Postcode"
+                fullWidth
+                margin="normal"
+                value={customerToEdit.address?.postalCode || ""}
+                onChange={(e) =>
+                  setCustomerToEdit({
+                    ...customerToEdit,
+                    address: {
+                      ...customerToEdit.address,
+                      postalCode: e.target.value,
+                    },
+                  })
+                }
+                required
+              />
+              <TextField
+                label="Stad/Gemeente"
+                fullWidth
+                margin="normal"
+                value={customerToEdit.address?.city || ""}
+                onChange={(e) =>
+                  setCustomerToEdit({
+                    ...customerToEdit,
+                    address: {
+                      ...customerToEdit.address,
+                      city: e.target.value,
+                    },
+                  })
+                }
+                required
+              />
+              <TextField
+                label="Straat"
+                fullWidth
+                margin="normal"
+                value={customerToEdit.address?.street || ""}
+                onChange={(e) =>
+                  setCustomerToEdit({
+                    ...customerToEdit,
+                    address: {
+                      ...customerToEdit.address,
+                      street: e.target.value,
+                    },
+                  })
+                }
+                required
+              />
+              <TextField
+                label="Huisnummer"
+                fullWidth
+                margin="normal"
+                value={customerToEdit.address?.houseNumber || ""}
+                onChange={(e) =>
+                  setCustomerToEdit({
+                    ...customerToEdit,
+                    address: {
+                      ...customerToEdit.address,
+                      houseNumber: e.target.value,
+                    },
+                  })
+                }
+                required
+              />
+              <TextField
+                label="Busnummer"
+                fullWidth
+                margin="normal"
+                value={customerToEdit.address?.busNumber || ""}
+                onChange={(e) =>
+                  setCustomerToEdit({
+                    ...customerToEdit,
+                    address: {
+                      ...customerToEdit.address,
+                      busNumber: e.target.value,
+                    },
+                  })
+                }
+              />
+
+              {/* Aangemaakt op */}
+              <LocalizationProvider
+                dateAdapter={AdapterDateFns}
+                adapterLocale={nlLocale}
+              >
+                <DatePicker
+                  label="Aangemaakt op"
+                  value={
+                    customerToEdit.createdAt
+                      ? new Date(customerToEdit.createdAt)
+                      : null
+                  }
+                  onChange={(date) =>
+                    setCustomerToEdit({ ...customerToEdit, createdAt: date })
+                  }
+                  renderInput={(params) => (
+                    <TextField {...params} fullWidth margin="normal" />
+                  )}
+                />
+              </LocalizationProvider>
+
+              {/* Verloopdatum */}
+              <LocalizationProvider
+                dateAdapter={AdapterDateFns}
+                adapterLocale={nlLocale}
+              >
+                <DatePicker
+                  label="Verloopdatum"
+                  value={
+                    customerToEdit.subscription?.expiryDate
+                      ? new Date(customerToEdit.subscription.expiryDate)
+                      : null
+                  }
+                  onChange={(date) =>
+                    setCustomerToEdit({
+                      ...customerToEdit,
+                      subscription: {
+                        ...customerToEdit.subscription,
+                        expiryDate: date,
+                      },
+                    })
+                  }
+                  renderInput={(params) => (
+                    <TextField {...params} fullWidth margin="normal" />
+                  )}
+                />
+              </LocalizationProvider>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditModalOpen(false)} color="secondary">
+            Annuleren
+          </Button>
+          <Button
+            onClick={handleSaveEditedCustomer}
+            color="primary"
+            variant="contained"
+          >
+            Opslaan
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
 
 ////////////////////////////////////////////
 ////////////////////////////////////////////
-//////////// EXPORT STATEMENT //////////////
+/////////// EXPORT STATEMENT //////////////
 ////// Hier exporteren we de component /////
 ////////////////////////////////////////////
 ////////////////////////////////////////////
