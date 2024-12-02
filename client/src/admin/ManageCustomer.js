@@ -1,3 +1,11 @@
+////////////////////////////////////////////
+////////////////////////////////////////////
+//////////////// IMPORTS ///////////////////
+////// Hier importeren we alle benodigde ///
+////// modules en componenten            ///
+////////////////////////////////////////////
+////////////////////////////////////////////
+
 import React, { useEffect, useState, useMemo } from "react";
 import {
   Box,
@@ -22,8 +30,16 @@ import {
   TableRow,
   TextField,
   Alert,
+  Tooltip,
 } from "@mui/material";
-import { Edit, Delete, Visibility } from "@mui/icons-material";
+import {
+  Edit,
+  Delete,
+  Visibility,
+  FilterList,
+  GetApp as GetAppIcon,
+  Report,
+} from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -31,9 +47,25 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import nlLocale from "date-fns/locale/nl";
 import { CSVLink } from "react-csv";
 import { useTable, useFilters } from "react-table";
-import GetAppIcon from "@mui/icons-material/GetApp";
+
+////////////////////////////////////////////
+////////////////////////////////////////////
+////////////// COMPONENT ///////////////////
+/////// Dit is de hoofdcomponent voor //////
+/////// het beheren van klanten         ////
+////////////////////////////////////////////
+////////////////////////////////////////////
 
 function ManageCustomer() {
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
+  //////// STATE DECLARATIES /////////////////
+  //// Hier definiëren we alle useState //////
+  //// hooks voor het beheren van de     /////
+  //// componentstatus                   /////
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
+
   const theme = useTheme();
   const [customers, setCustomers] = useState([]);
   const [selectedCustomers, setSelectedCustomers] = useState([]);
@@ -61,6 +93,17 @@ function ManageCustomer() {
     message: "",
     severity: "success",
   });
+  const [filtering, setFiltering] = useState(false);
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportMessage, setReportMessage] = useState("");
+
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
+  ////////////// DATA FETCHING ///////////////
+  //// Hier halen we data op van de API //////
+  //// met behulp van useEffect hooks    /////
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -74,7 +117,11 @@ function ManageCustomer() {
               name: "Voorbeeld Klant",
               email: "voorbeeld@email.com",
               phone: "+32 123 456 789",
-              subscription: { name: "Pro Abonnement" },
+              subscription: {
+                name: "Pro Abonnement",
+                expiryDate: "2024-12-31T00:00:00Z",
+              },
+              createdAt: "2023-01-15T10:00:00Z",
             },
           ]);
         } else {
@@ -108,38 +155,135 @@ function ManageCustomer() {
     fetchSubscriptions();
   }, []);
 
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
+  ///////////// TABEL KOLONNEN ///////////////
+  //// Hier definiëren we de kolommen voor ///
+  //// de react-table                      ///
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
+
   const columns = useMemo(
     () => [
       {
         Header: "Naam",
         accessor: "name",
-        Filter: ({ column: { filterValue, setFilter } }) => (
-          <TextField
-            value={filterValue || ""}
-            onChange={(e) => setFilter(e.target.value || undefined)}
-            placeholder="Filter op naam"
-            fullWidth
-            margin="normal"
-          />
-        ),
+        Filter: ({ column: { filterValue, setFilter } }) =>
+          filtering ? (
+            <TextField
+              value={filterValue || ""}
+              onChange={(e) => setFilter(e.target.value || undefined)}
+              placeholder="Filter op naam"
+              fullWidth
+              margin="normal"
+            />
+          ) : null,
       },
       {
         Header: "Email",
         accessor: "email",
-        Filter: ({ column: { filterValue, setFilter } }) => (
-          <TextField
-            value={filterValue || ""}
-            onChange={(e) => setFilter(e.target.value || undefined)}
-            placeholder="Filter op email"
-            fullWidth
-            margin="normal"
-          />
-        ),
+        Filter: ({ column: { filterValue, setFilter } }) =>
+          filtering ? (
+            <TextField
+              value={filterValue || ""}
+              onChange={(e) => setFilter(e.target.value || undefined)}
+              placeholder="Filter op email"
+              fullWidth
+              margin="normal"
+            />
+          ) : null,
       },
-      // Voeg meer kolommen toe indien nodig
+      {
+        Header: "Telefoon",
+        accessor: "phone",
+        Filter: ({ column: { filterValue, setFilter } }) =>
+          filtering ? (
+            <TextField
+              value={filterValue || ""}
+              onChange={(e) => setFilter(e.target.value || undefined)}
+              placeholder="Filter op telefoon"
+              fullWidth
+              margin="normal"
+            />
+          ) : null,
+      },
+      {
+        Header: "Abonnement",
+        accessor: "subscription.name",
+        Filter: ({ column: { filterValue, setFilter } }) =>
+          filtering ? (
+            <TextField
+              value={filterValue || ""}
+              onChange={(e) => setFilter(e.target.value || undefined)}
+              placeholder="Filter op abonnement"
+              fullWidth
+              margin="normal"
+            />
+          ) : null,
+      },
+      {
+        Header: "Aangemaakt op",
+        accessor: "createdAt",
+        Cell: ({ value }) =>
+          value ? new Date(value).toLocaleDateString("nl-NL") : "Onbekend",
+        Filter: ({ column: { filterValue, setFilter } }) =>
+          filtering ? (
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={nlLocale}
+            >
+              <DatePicker
+                label="Filter op datum"
+                value={filterValue || null}
+                onChange={(date) =>
+                  setFilter(date ? date.toISOString() : undefined)
+                }
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth margin="normal" />
+                )}
+              />
+            </LocalizationProvider>
+          ) : null,
+      },
+      {
+        Header: "Verloopdatum",
+        accessor: "subscription.expiryDate",
+        Cell: ({ row }) =>
+          row.original.subscription?.expiryDate
+            ? new Date(row.original.subscription.expiryDate).toLocaleDateString(
+                "nl-NL"
+              )
+            : "N/B",
+        Filter: ({ column: { filterValue, setFilter } }) =>
+          filtering ? (
+            <LocalizationProvider
+              dateAdapter={AdapterDateFns}
+              adapterLocale={nlLocale}
+            >
+              <DatePicker
+                label="Filter op verloopdatum"
+                value={filterValue || null}
+                onChange={(date) =>
+                  setFilter(date ? date.toISOString() : undefined)
+                }
+                renderInput={(params) => (
+                  <TextField {...params} fullWidth margin="normal" />
+                )}
+              />
+            </LocalizationProvider>
+          ) : null,
+      },
     ],
-    []
+    [filtering]
   );
+
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
+  ////////// TABEL INSTELLINGEN //////////////
+  //// Initialiseren van de react-table //////
+  //// instance met kolommen en data      ////
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(
@@ -149,6 +293,14 @@ function ManageCustomer() {
       },
       useFilters
     );
+
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
+  ///////////// EVENT HANDLERS ///////////////
+  //// Functies voor events zoals selectie, //
+  //// weergave en creëren van klanten     ///
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
 
   const handleSelect = (customerId) => {
     setSelectedCustomers((prevSelected) =>
@@ -233,12 +385,51 @@ function ManageCustomer() {
     }
   };
 
+  const handleSendReport = async () => {
+    try {
+      // Implementeer hier je API-aanroep om het rapport te verzenden
+      const response = await fetch("http://localhost:5000/api/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: reportMessage }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Fout bij het versturen van het rapport.");
+      }
+
+      setNotification({
+        open: true,
+        message: "Rapport succesvol verstuurd.",
+        severity: "success",
+      });
+      setReportModalOpen(false);
+      setReportMessage("");
+    } catch (error) {
+      console.error(error);
+      setNotification({
+        open: true,
+        message: error.message,
+        severity: "error",
+      });
+    }
+  };
+
   const handleCloseNotification = () => {
     setNotification({ ...notification, open: false });
   };
 
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
+  ///////////////// RENDER ///////////////////
+  //// Hier renderen we de component met /////
+  //// alle UI-elementen                //////
+  ////////////////////////////////////////////
+  ////////////////////////////////////////////
+
   return (
     <Box p={2}>
+      {/* Snackbar voor meldingen */}
       <Snackbar
         open={notification.open}
         autoHideDuration={6000}
@@ -254,6 +445,7 @@ function ManageCustomer() {
         </Alert>
       </Snackbar>
 
+      {/* Header met knoppen */}
       <Box
         display="flex"
         justifyContent="space-between"
@@ -261,123 +453,130 @@ function ManageCustomer() {
         mb={2}
       >
         <h2>Klanten Beheren</h2>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setShowModal(true)}
-        >
-          + Nieuw
-        </Button>
-        <CSVLink
-          data={customers}
-          headers={[
-            { label: "Naam", key: "name" },
-            { label: "Email", key: "email" },
-            { label: "Telefoon", key: "phone" },
-            // Voeg hier meer velden toe indien nodig
-          ]}
-          filename="Klantenlijst.csv"
-          style={{ textDecoration: "none" }}
-        >
+        <Box display="flex" alignItems="center">
+          <Button
+            variant="contained"
+            color="success" // Groen
+            onClick={() => setShowModal(true)}
+            style={{ marginRight: 8 }}
+          >
+            + Nieuw
+          </Button>
           <Button
             variant="contained"
             color="primary"
-            startIcon={<GetAppIcon />}
+            startIcon={<FilterList />}
+            onClick={() => setFiltering(!filtering)}
+            style={{ marginRight: 8 }}
           >
-            Exporteren
+            Filter
           </Button>
-        </CSVLink>
+          <Button
+            variant="contained"
+            color="error" // Rood
+            startIcon={<Report />}
+            onClick={() => setReportModalOpen(true)}
+            style={{ marginRight: 8 }}
+          >
+            Report
+          </Button>
+          <CSVLink
+            data={customers}
+            headers={[
+              { label: "Naam", key: "name" },
+              { label: "Email", key: "email" },
+              { label: "Telefoon", key: "phone" },
+              { label: "Abonnement", key: "subscription.name" },
+              { label: "Aangemaakt op", key: "createdAt" },
+              { label: "Verloopdatum", key: "subscription.expiryDate" },
+            ]}
+            filename="Klantenlijst.csv"
+            style={{ textDecoration: "none" }}
+          >
+            <Button
+              variant="contained"
+              style={{
+                backgroundColor: "#d3d3d3", // Lichtgrijs
+                color: "#000",
+                marginLeft: 8,
+              }}
+              startIcon={<GetAppIcon />}
+            >
+              Exporteren
+            </Button>
+          </CSVLink>
+        </Box>
       </Box>
 
+      {/* Tabel met klanten */}
       <Paper>
         <TableContainer>
-          <Table>
-            <TableHead style={{ backgroundColor: theme.palette.grey[200] }}>
-              <TableRow>
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    indeterminate={
-                      selectedCustomers.length > 0 &&
-                      selectedCustomers.length < customers.length
-                    }
-                    checked={
-                      customers.length > 0 &&
-                      selectedCustomers.length === customers.length
-                    }
-                    onChange={(e) =>
-                      setSelectedCustomers(
-                        e.target.checked ? customers.map((c) => c._id) : []
-                      )
-                    }
-                  />
-                </TableCell>
-                <TableCell>Naam</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Telefoon</TableCell>
-                <TableCell>Abonnement</TableCell>
-                <TableCell align="right">Acties</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {customers.map((customer) => (
-                <TableRow key={customer._id} hover>
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={selectedCustomers.includes(customer._id)}
-                      onChange={() => handleSelect(customer._id)}
-                    />
-                  </TableCell>
-                  <TableCell>{customer.name}</TableCell>
-                  <TableCell>{customer.email}</TableCell>
-                  <TableCell>{customer.phone}</TableCell>
-                  <TableCell>
-                    {customer.subscription?.name || "Geen abonnement"}
-                  </TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      color="primary"
-                      onClick={() => handleViewCustomer(customer)}
-                    >
-                      <Visibility />
-                    </IconButton>
-                    <IconButton color="secondary">
-                      <Edit />
-                    </IconButton>
-                    <IconButton color="error">
-                      <Delete />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TableContainer>
           <Table {...getTableProps()}>
-            <TableHead>
+            <TableHead style={{ backgroundColor: theme.palette.grey[200] }}>
               {headerGroups.map((headerGroup) => (
                 <TableRow {...headerGroup.getHeaderGroupProps()}>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      indeterminate={
+                        selectedCustomers.length > 0 &&
+                        selectedCustomers.length < customers.length
+                      }
+                      checked={
+                        customers.length > 0 &&
+                        selectedCustomers.length === customers.length
+                      }
+                      onChange={(e) =>
+                        setSelectedCustomers(
+                          e.target.checked ? customers.map((c) => c._id) : []
+                        )
+                      }
+                    />
+                  </TableCell>
                   {headerGroup.headers.map((column) => (
                     <TableCell {...column.getHeaderProps()}>
                       {column.render("Header")}
-                      <div>
-                        {column.canFilter ? column.render("Filter") : null}
-                      </div>
+                      {filtering && (
+                        <div>
+                          {column.canFilter ? column.render("Filter") : null}
+                        </div>
+                      )}
                     </TableCell>
                   ))}
+                  <TableCell align="right">Acties</TableCell>
                 </TableRow>
               ))}
             </TableHead>
             <TableBody {...getTableBodyProps()}>
               {rows.map((row) => {
                 prepareRow(row);
+                const customer = row.original;
                 return (
-                  <TableRow {...row.getRowProps()}>
+                  <TableRow {...row.getRowProps()} hover>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedCustomers.includes(customer._id)}
+                        onChange={() => handleSelect(customer._id)}
+                      />
+                    </TableCell>
                     {row.cells.map((cell) => (
                       <TableCell {...cell.getCellProps()}>
                         {cell.render("Cell")}
                       </TableCell>
                     ))}
+                    <TableCell align="right">
+                      <IconButton
+                        color="primary"
+                        onClick={() => handleViewCustomer(customer)}
+                      >
+                        <Visibility />
+                      </IconButton>
+                      <IconButton color="secondary">
+                        <Edit />
+                      </IconButton>
+                      <IconButton color="error">
+                        <Delete />
+                      </IconButton>
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -386,6 +585,40 @@ function ManageCustomer() {
         </TableContainer>
       </Paper>
 
+      {/* Report Modal */}
+      <Dialog
+        open={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Probleem Melden</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Uw Bericht"
+            multiline
+            rows={4}
+            fullWidth
+            margin="normal"
+            value={reportMessage}
+            onChange={(e) => setReportMessage(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setReportModalOpen(false)} color="secondary">
+            Annuleren
+          </Button>
+          <Button
+            onClick={handleSendReport}
+            color="primary"
+            variant="contained"
+          >
+            Versturen
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Modaal voor het bekijken van klantgegevens */}
       <Dialog
         open={viewModalOpen}
         onClose={() => setViewModalOpen(false)}
@@ -431,6 +664,22 @@ function ManageCustomer() {
                     }, ${selectedCustomer.address.country || ""}`
                   : "Onbekend"}
               </p>
+              <p>
+                <strong>Aangemaakt op:</strong>{" "}
+                {selectedCustomer.createdAt
+                  ? new Date(selectedCustomer.createdAt).toLocaleDateString(
+                      "nl-NL"
+                    )
+                  : "Onbekend"}
+              </p>
+              <p>
+                <strong>Verloopdatum:</strong>{" "}
+                {selectedCustomer.subscription?.expiryDate
+                  ? new Date(
+                      selectedCustomer.subscription.expiryDate
+                    ).toLocaleDateString("nl-NL")
+                  : "N/B"}
+              </p>
             </Box>
           )}
         </DialogContent>
@@ -450,6 +699,7 @@ function ManageCustomer() {
       >
         <DialogTitle>Nieuwe Klant Aanmaken</DialogTitle>
         <DialogContent>
+          {/* Formulier velden voor nieuwe klant */}
           <TextField
             label="Naam"
             fullWidth
@@ -629,5 +879,12 @@ function ManageCustomer() {
     </Box>
   );
 }
+
+////////////////////////////////////////////
+////////////////////////////////////////////
+//////////// EXPORT STATEMENT //////////////
+////// Hier exporteren we de component /////
+////////////////////////////////////////////
+////////////////////////////////////////////
 
 export default ManageCustomer;
